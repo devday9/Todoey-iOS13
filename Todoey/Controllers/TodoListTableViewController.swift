@@ -7,12 +7,13 @@
 //
 
 import UIKit
+import CoreData
 
 class TodoListTableViewController: UITableViewController {
     
     //MARK: - Properties
     var itemArray = [Item]()
-    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     //MARK: - Lifecycle Methods
     override func viewDidLoad() {
@@ -35,12 +36,10 @@ class TodoListTableViewController: UITableViewController {
         
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
             
-            let newItem = Item()
+            let newItem = Item(context: self.context)
             newItem.title = textField.text ?? ""
-            
+            newItem.done = false
             self.itemArray.append(newItem)
-            
-            //            self.defaults.set(self.itemArray, forKey: "ToDoListArray")
             
             self.saveItems()
         }
@@ -57,13 +56,9 @@ class TodoListTableViewController: UITableViewController {
     
     //MARK: - CRUD
     func saveItems() {
-        let encoder = PropertyListEncoder()
         
         do{
-            let encoder = PropertyListEncoder()
-            let data = try encoder.encode(itemArray)
-            try data.write(to: dataFilePath!)
-            
+            try context.save()
         } catch {
             print("Error in \(#function) : \(error.localizedDescription) \n---\n \(error)")
         }
@@ -71,13 +66,11 @@ class TodoListTableViewController: UITableViewController {
     }
     
     func loadItems() {
-        if let data = try? Data(contentsOf: dataFilePath!) {
-            let decoder = PropertyListDecoder()
-            do {
-                itemArray = try decoder.decode([Item].self, from: data)
-            } catch {
-                print("Error in \(#function) : \(error.localizedDescription) \n---\n \(error)")
-            }
+        let request: NSFetchRequest<Item> = Item.fetchRequest()
+        do {
+            try context.fetch(request)
+        } catch {
+            print("Error in \(#function) : \(error.localizedDescription) \n---\n \(error)")
         }
     }
     
@@ -106,16 +99,4 @@ class TodoListTableViewController: UITableViewController {
         saveItems()
         tableView.deselectRow(at: indexPath, animated: true)
     }
-    
-    
-    /*
-     // MARK: - Navigation
-     
-     // In a storyboard-based application, you will often want to do a little preparation before navigation
-     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-     // Get the new view controller using segue.destination.
-     // Pass the selected object to the new view controller.
-     }
-     */
-    
-}
+}//END OF CLASS
