@@ -54,7 +54,7 @@ class TodoListTableViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
     }
     
-    //MARK: - CRUD
+    //MARK: - Save
     func saveItems() {
         
         do{
@@ -65,8 +65,8 @@ class TodoListTableViewController: UITableViewController {
         tableView.reloadData()
     }
     
-    func loadItems() {
-        let request: NSFetchRequest<Item> = Item.fetchRequest()
+    //MARK: - Load
+    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest()) {
         do {
             try context.fetch(request)
         } catch {
@@ -94,9 +94,37 @@ class TodoListTableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        //        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        
+        context.delete(itemArray[indexPath.row])
+        itemArray.remove(at: indexPath.row)
         
         saveItems()
+        
         tableView.deselectRow(at: indexPath, animated: true)
     }
 }//END OF CLASS
+
+//MARK: - Extensions
+extension TodoListTableViewController: UISearchBarDelegate {
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let request: NSFetchRequest<Item> = Item.fetchRequest()
+        
+        request.predicate = NSPredicate(format: "title CONTAINS %@", searchBar.text!)
+        
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+    
+        loadItems(with: request)
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchBar.text?.count == 0 {
+            loadItems()
+            
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+        }
+    }
+}//END OF EXTENSION
