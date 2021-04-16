@@ -85,10 +85,10 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Todoey" id="Tqg-W4-R2o">
-                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="KsS-TZ-Urc">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="4mh-4Z-YY9">
                             <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             <connections>
-                                <action selector="addButtonPressed:" destination="5im-q6-rSl" id="4mK-4i-feP"/>
+                                <action selector="addButtonTapped:" destination="5im-q6-rSl" id="e6e-IR-Vao"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
